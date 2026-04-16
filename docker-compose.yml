@@ -1,0 +1,70 @@
+
+services:
+  api:
+    build: ./api
+    container_name: fastapi-app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/mydb"
+      POSTGRES_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+      LDAP_HOST: openldap
+      LDAP_USER: cn=admin,dc=kube,dc=lab
+      LDAP_PASSWORD: admin
+    depends_on:
+      - db
+      - openldap
+
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  frontend:
+    build: ./frontend
+    container_name: nginx-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: openldap
+    environment:
+      LDAP_ORGANISATION: "KubeLDAP"
+      LDAP_DOMAIN: "kube.lab"
+      LDAP_ADMIN_PASSWORD: "admin"
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - openldap_data:/var/lib/ldap
+      - openldap_config:/etc/ldap/slapd.d
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_HTTPS: "false"
+      PHPLDAPADMIN_LDAP_HOSTS: "openldap"
+      PHPLDAPADMIN_DEFAULT_BASE_DN: "dc=kube,dc=lab"
+    ports:
+      - "8080:80"
+    depends_on:
+      - openldap
+
+volumes:
+  postgres_data:
+  openldap_data:
+  openldap_config:
