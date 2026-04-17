@@ -49,7 +49,8 @@ services:
       - "389:389"
       - "636:636"
     volumes:
-      - ./ldap/init:/container/service/slapd/assets/config/bootstrap/ldif/custom
+#     intented to import my LDIF data, but does not work
+#     - ./ldap/init:/container/service/slapd/assets/config/bootstrap/ldif/custom:ro
       - openldap_data:/var/lib/ldap
       - openldap_config:/etc/ldap/slapd.d
 
