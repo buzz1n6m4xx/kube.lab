@@ -13,4 +13,30 @@ jobs:
       - name: Checkout kube.lab repo
         uses: actions/checkout@v4
 
+      - name: Create .env file
+        run:
+          echo "POSTGRES_USER=postgres" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=mydb" >> .env
+          echo "LDAP_ADMIN_PASSWORD=${{ secrets.LDAP_ADMIN_PASSWORD }}" >> env.
+          echo "LDAP_PASSWORD=${{ secrets.LDAP_PASSWORD }}" >> env.
+
+      - name: Build containers
+        run: docker compose build
+
+      - name: Start containers
+        run: docker compose up -d
+
+      - name: Wait for API
+        run: |
+          sleep 10
+          curl --fail http://localhost:8000 | exit 1
+
+      - name: Test API endpoint
+        run: |
+          curl --fail http://localhost:8000/postgres_test || exit 1
+
+      - name: Stop containers
+        run: docker compose down
+
 
