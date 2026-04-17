@@ -1,0 +1,5 @@
+dn: cn=users,ou=groups,dc=kube,dc=lab
+objectClass: top
+objectClass: groupOfNames
+cn: users
+member: uid=alan,ou=users,dc=kube,dc=lab
