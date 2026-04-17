@@ -36,8 +36,8 @@ jobs:
         run: |
           curl --fail http://localhost/api/users || exit 1
 
-      -name: Test API endpoint (POSTGRES)
-       run: |
+      - name: Test API endpoint (POSTGRES)
+        run: |
           curl --fail http://localhost/api/postgres_test || exit 1
 
       - name: Stop containers
