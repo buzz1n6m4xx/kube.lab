@@ -7,6 +7,7 @@ import os
 app = FastAPI()
 
 # --- PostgreSQL connection ---
+# -- Set environment variables in local .env file, otherwise these fallback variables are used --
 PG_HOST = os.getenv("POSTGRES_HOST", "db")
 PG_USER = os.getenv("POSTGRES_USER", "postgres")
 PG_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
@@ -15,6 +16,7 @@ PG_DB = os.getenv("POSTGRES_DB", "mydb")
 engine = create_engine(f"postgresql+psycopg://{PG_USER}:{PG_PASSWORD}@{PG_HOST}/{PG_DB}", echo=True)
 
 # --- LDAP connection ---
+# -- Set environment variables in local .env file, otherwise these fallback variables are used --
 LDAP_HOST = os.getenv("LDAP_HOST", "openldap")
 LDAP_USER = os.getenv("LDAP_USER", "cn=admin,dc=kube,dc=lab")
 LDAP_PASSWORD = os.getenv("LDAP_PASSWORD", "admin")
