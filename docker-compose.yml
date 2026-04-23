@@ -42,6 +42,7 @@ services:
     image: osixia/openldap:1.5.0
     container_name: openldap
     environment:
+      LDAP_BASE_DN: "dc=kube,dc=lab"
       LDAP_ORGANISATION: "KubeLDAP"
       LDAP_DOMAIN: "kube.lab"
       LDAP_ADMIN_PASSWORD: "admin"
@@ -50,9 +51,10 @@ services:
       - "636:636"
     volumes:
 #     intented to import my LDIF data, but does not work
-#     - ./ldap/init:/container/service/slapd/assets/config/bootstrap/ldif/custom:ro
-      - openldap_data:/var/lib/ldap
-      - openldap_config:/etc/ldap/slapd.d
+     - ./ldap/bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/50-bootstrap.ldif
+#      - openldap_data:/var/lib/ldap
+#      - openldap_config:/etc/ldap/slapd.d
+    command: --copy-service
 
   phpldapadmin:
     image: osixia/phpldapadmin:0.9.0

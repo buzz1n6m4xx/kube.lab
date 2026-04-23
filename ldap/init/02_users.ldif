@@ -1,8 +1,0 @@
-dn: uid=alan,ou=users,dc=kube,dc=lab
-objectClass: inetOrgPerson
-objectClass: top
-uid: alan
-cn: Alan Turing
-sn: Turing
-mail: alan@kube.lab
-userPassword: alan

@@ -1,0 +1,43 @@
+# organisational units
+dn: ou=users,dc=kube,dc=lab
+changetype: add
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,dc=kube,dc=lab
+changetype: add
+objectClass: organizationalUnit
+ou: groups
+
+# users
+dn: uid=alan,ou=users,dc=kube,dc=lab
+changetype: add
+objectClass: inetOrgPerson
+uid: alan
+cn: Alan Turing
+sn: Turing
+mail: alan@kube.lab
+userPassword: alan
+
+dn: uid=ada,ou=users,dc=kube,dc=lab
+changetype: add
+objectClass: inetOrgPerson
+uid: ada
+cn: Ada Lovelace
+sn: Lovelace
+mail: ada@kube.lab
+userPassword: ada
+
+# groups
+dn: cn=users,ou=groups,dc=kube,dc=lab
+changetype: add
+objectClass: groupOfNames
+cn: users
+member: uid=alan,ou=users,dc=kube,dc=lab
+
+dn: cn=admins,ou=groups,dc=kube,dc=lab
+changetype:add
+objectClass: posixGroup
+cn: admins
+gidNumber: 500
+memberUid: ada

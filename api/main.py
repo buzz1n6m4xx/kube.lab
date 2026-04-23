@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from sqlalchemy import create_engine, text
-from ldap3 import Server, Connection, ALL
+from ldap3 import Server, Connection, ALL, SUBTREE
 
 import os
 
@@ -19,9 +19,22 @@ LDAP_HOST = os.getenv("LDAP_HOST", "openldap")
 LDAP_USER = os.getenv("LDAP_USER", "cn=admin,dc=kube,dc=lab")
 LDAP_PASSWORD = os.getenv("LDAP_PASSWORD", "admin")
 
-server = Server(LDAP_HOST, get_info=ALL)
-conn = Connection(server, user=LDAP_USER, password=LDAP_PASSWORD)
-conn.bind()
+# Define the port (389 for standard, 636 for LDAPS)
+# Note: use_ssl=True is required if using port 636
+LDAP_PORT = 389 
+
+# Initialize Server with explicit port
+server = Server(LDAP_HOST, port=LDAP_PORT, get_info=ALL)
+
+# Initialize Connection with auto_bind
+# Use AUTO_BIND_NO_TLS for standard or AUTO_BIND_TLS_BEFORE_BIND for SSL
+def get_ldap_conn():
+    return Connection(
+        server,
+        user=LDAP_USER,
+        password=LDAP_PASSWORD,
+        auto_bind=True
+    )
 
 @app.get("/")
 def root():
@@ -39,10 +52,28 @@ def postgres_test():
 
 @app.get("/users")
 def get_users():
+    conn = get_ldap_conn()
     conn.search('dc=kube,dc=lab', '(objectClass=person)', attributes=['cn', 'uid'])
-    return [e.entry_to_json() for e in conn.entries]
+    return [entry.entry_attributes_as_dict for entry in conn.entries]
 
 @app.get("/groups")
 def get_groups():
-    conn.search('dc=kube,dc=lab', '(objectClass=posixGroup)', attributes=['cn','gidNumber'])
-    return [e.entry_to_json() for e in conn.entries]
+    conn = get_ldap_conn()
+    conn.search(
+        'dc=kube,dc=lab',
+        '(objectClass=groupOfNames)',
+        search_scope=SUBTREE,
+        attributes=['cn', 'member']
+    )
+    return [entry.entry_attributes_as_dict for entry in conn.entries]
+
+@app.get("/posixgroups")
+def get_posixgroup():
+    conn = get_ldap_conn()
+    conn.search(
+        'dc=kube,dc=lab',
+        '(objectClass=posixGroup)',
+        search_scope=SUBTREE,
+        attributes=['cn', 'memberUid']
+    )
+    return [entry.entry_attributes_as_dict for entry in conn.entries]
